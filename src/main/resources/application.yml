@@ -1,0 +1,52 @@
+app:
+ ms:
+  rate-limit:
+   capacity: 3
+  percentage:
+   url: http://localhost:8081/tempo
+server:
+ servlet:
+  context-path: /tempo
+resilience4j.retry:
+ configs:
+  default:
+   registerHealthIndicator: true
+   maxAttempts: 3
+   waitDuration: 1s
+   enableExponentialBackoff: true
+   exponentialBackoffMultiplier: 2
+ instances:
+  percentageClient:
+   baseConfig: default
+   ignoreExceptions:
+    - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+management:
+ endpoint:
+  health:
+   show-details: always
+ security:
+  enabled=false:
+ endpoints:
+  web:
+   exposure:
+    include: health,info,retries,retryevents
+ health:
+  circuitbreakers:
+   enabled: true
+  retries:
+   enabled: true
+spring:
+ redis:
+  host: localhost
+  port: 6379
+ datasource:
+  url: jdbc:postgresql://localhost:5432/postgres
+  username: root
+  password: root
+ jpa:
+  database-platform: org.hibernate.dialect.PostgreSQLDialect
+  hibernate.ddl-auto: update
+ main:
+  allow-bean-definition-overriding: true
+ profiles:
+  active: development

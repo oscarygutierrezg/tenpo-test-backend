@@ -1,0 +1,52 @@
+app:
+ ms:
+  rate-limit:
+   capacity: 3
+  percentage:
+   url: http://localhost:9090
+server:
+ servlet:
+  context-path: /tempo
+resilience4j.retry:
+ configs:
+  default:
+   registerHealthIndicator: true
+   maxAttempts: 3
+   waitDuration: 1s
+   enableExponentialBackoff: true
+   exponentialBackoffMultiplier: 2
+ instances:
+  percentageClient:
+   baseConfig: default
+   ignoreExceptions:
+    - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+management:
+ endpoint:
+  health:
+   show-details: always
+ security:
+  enabled=false:
+ endpoints:
+  web:
+   exposure:
+    include: health,info,retries,retryevents
+ health:
+  circuitbreakers:
+   enabled: true
+  retries:
+   enabled: true
+spring:
+ datasource:
+  url: jdbc:h2:mem:mydb
+  username: sa
+  password: password
+  driverClassName: org.h2.Driver
+ jpa:
+  spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+ main:
+  allow-bean-definition-overriding: true
+ redis:
+  host: localhost
+  port: 6370
+ profiles:
+  active: test
