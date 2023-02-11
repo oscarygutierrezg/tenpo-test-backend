@@ -3,10 +3,10 @@ app:
   rate-limit:
    capacity: 3
   percentage:
-   url: http://localhost:8081/tempo
+   url: http://localhost:8081/tenpo
 server:
  servlet:
-  context-path: /tempo
+  context-path: /tenpo
 resilience4j.retry:
  configs:
   default:

@@ -6,7 +6,7 @@ app:
    url: http://localhost:9090
 server:
  servlet:
-  context-path: /tempo
+  context-path: /tenpo
 resilience4j.retry:
  configs:
   default:
