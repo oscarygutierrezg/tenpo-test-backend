@@ -17,4 +17,4 @@ $ docker run -d --name some-redis -p 6379:6379 redis/redis-stack-server:latest
 ## Documentacion del API
 La documentación en formato OpenAPI está disponible [aqui](http://localhost:8080/tempo/swagger-ui/index.html) </br>
 La información de actuator está disponible [aqui](http://localhost:8080/tempo/actuator) </br>
-La información sobre los reintentos está disponible [aqui](http://localhost:8081/tempo/actuator/retryevents) </br>
+La información sobre los reintentos está disponible [aqui](http://localhost:8080/tempo/actuator/retryevents) </br>
