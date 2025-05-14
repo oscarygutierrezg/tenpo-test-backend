@@ -1,13 +1,9 @@
-package com.tenpo.test.service.impl;
+package com.tenpo.test.unit.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tenpo.test.dto.history.CalledHistoryDto;
 import com.tenpo.test.dto.percentage.PercentageDto;
 import com.tenpo.test.service.AsyncPercentageProcessorService;
-import com.tenpo.test.service.CalledHistoryService;
 import com.tenpo.test.service.PercentageService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.tenpo.test.service.impl.PricingServiceServiceImpl;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -22,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
-class PricingServiceServiceImplTest {
+class PricingServiceServiceImplUnitTest {
 
 	@InjectMocks
 	private PricingServiceServiceImpl pricingServiceService;

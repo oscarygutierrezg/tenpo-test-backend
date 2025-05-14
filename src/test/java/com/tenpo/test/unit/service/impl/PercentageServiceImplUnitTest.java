@@ -1,7 +1,8 @@
-package com.tenpo.test.service.impl;
+package com.tenpo.test.unit.service.impl;
 
 import com.tenpo.test.client.PercentageClient;
 import com.tenpo.test.dto.percentage.PercentageDto;
+import com.tenpo.test.service.impl.PercentageServiceImpl;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class PercentageServiceImplTest {
+class PercentageServiceImplUnitTest {
 
 	@InjectMocks
 	private PercentageServiceImpl percentageService;

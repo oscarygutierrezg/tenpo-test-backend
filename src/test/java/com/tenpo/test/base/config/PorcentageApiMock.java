@@ -1,4 +1,4 @@
-package com.tenpo.test.config;
+package com.tenpo.test.base.config;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;

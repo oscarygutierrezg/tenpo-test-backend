@@ -1,13 +1,13 @@
-package com.tenpo.test.controller;
+package com.tenpo.test.base;
 
-import com.tenpo.test.config.PorcentageApiMock;
+import com.tenpo.test.base.config.PorcentageApiMock;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
  * Base class for controller tests.
  */
-class BaseControllerTest {
+class BaseIntegrationControllerTest {
 
 	private PorcentageApiMock porcentageApiMock;
 	private static GenericContainer<?> redisServer;

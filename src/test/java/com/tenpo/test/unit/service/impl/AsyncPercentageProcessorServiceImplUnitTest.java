@@ -1,26 +1,24 @@
-package com.tenpo.test.service.impl;
+package com.tenpo.test.unit.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenpo.test.dto.percentage.PercentageDto;
 import com.tenpo.test.service.CalledHistoryService;
-import com.tenpo.test.service.PercentageService;
+import com.tenpo.test.service.impl.AsyncPercentageProcessorServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 import static com.tenpo.test.model.enums.Status.SUCCESSFUL;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
-class AsyncPercentageProcessorServiceImplTest {
+class AsyncPercentageProcessorServiceImplUnitTest {
 
 	@InjectMocks
 	private AsyncPercentageProcessorServiceImpl asyncPercentageProcessorService;

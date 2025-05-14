@@ -1,9 +1,10 @@
-package com.tenpo.test.service.impl;
+package com.tenpo.test.unit.service.impl;
 
 import com.tenpo.test.dto.history.CalledHistoryDto;
 import com.tenpo.test.dto.history.CalledHistoryMapper;
 import com.tenpo.test.model.CalledHistory;
 import com.tenpo.test.reposiroty.CalledHistoryRepository;
+import com.tenpo.test.service.impl.CalledHistoryServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +23,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-class CalledHistoryServiceImplTest {
+class CalledHistoryServiceImplUnitTest {
 
 	@InjectMocks
 	private CalledHistoryServiceImpl calledHistoryService;
