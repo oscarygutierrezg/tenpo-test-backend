@@ -1,9 +1,9 @@
 package com.tenpo.test.service;
 
 
-import com.tenpo.test.dto.percentage.PercentageDto;
+import com.tenpo.test.model.enums.Status;
 
-public interface PercentageService {
+public interface AsyncPercentageProcessorService {
 
-	PercentageDto getCurrent();
+	void saveHistory(Object response, Status status);
 }

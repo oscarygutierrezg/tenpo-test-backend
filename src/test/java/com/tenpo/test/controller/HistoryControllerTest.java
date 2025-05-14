@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import com.tenpo.test.TestBackendTenpoApplication;
-import com.tenpo.test.config.PorcentageApiMock;
 import com.tenpo.test.model.CalledHistory;
 import com.tenpo.test.model.enums.Status;
 import com.tenpo.test.reposiroty.CalledHistoryRepository;
@@ -24,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import redis.embedded.RedisServerBuilder;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestBackendTenpoApplication.class)
@@ -32,30 +30,23 @@ import redis.embedded.RedisServerBuilder;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-class HistoryControllerTest {
+class HistoryControllerTest extends BaseControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired
 	private CalledHistoryRepository calledHistoryRepository;
 	@Autowired
 	private MockMvc mockMvc;
-	private PorcentageApiMock porcentageApiMock = new PorcentageApiMock(9090);
 	public Faker faker = new Faker();
-	private static redis.embedded.RedisServer redisServer;
-
-
 
 	@BeforeAll
-	void init() {
-		porcentageApiMock.startMockServer();
-		redisServer = new RedisServerBuilder().port(6370).setting("maxmemory 256M").build();
-		redisServer.start();
+	void beforeAll() {
+		super.init(9091);
 	}
 
 	@AfterAll
-	void shutDown() {
-		porcentageApiMock.stop();
-		redisServer.stop();
+	void afterAll() {
+		super.shutDown();
 	}
 
 	public void saveHistory(Object response, Status status) {

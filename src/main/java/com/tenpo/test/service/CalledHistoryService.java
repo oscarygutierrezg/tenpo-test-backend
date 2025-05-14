@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface CalledHistoryService {
 
-	void create(CalledHistoryDto calledHistoryRequest);
+	void create(CalledHistoryDto calledHistoryRequest) ;
 
 	Page<CalledHistoryDto> index(Example<CalledHistory> example, Pageable pageable);
 

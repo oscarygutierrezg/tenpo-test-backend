@@ -3,7 +3,6 @@ package com.tenpo.test.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenpo.test.TestBackendTenpoApplication;
-import com.tenpo.test.config.PorcentageApiMock;
 import com.tenpo.test.dto.pricing.PricingDto;
 import com.tenpo.test.reposiroty.CalledHistoryRepository;
 import org.junit.jupiter.api.AfterAll;
@@ -26,7 +25,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import redis.embedded.RedisServerBuilder;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestBackendTenpoApplication.class)
@@ -35,30 +33,23 @@ import redis.embedded.RedisServerBuilder;
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class PercentageControllerTest {
+class PercentageControllerTest  extends BaseControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired
 	private CalledHistoryRepository calledHistoryRepository;
 	@Autowired
 	private MockMvc mockMvc;
-	private PorcentageApiMock porcentageApiMock = new PorcentageApiMock(9090);
-
-	private static redis.embedded.RedisServer redisServer;
-
 
 
 	@BeforeAll
-	void init() {
-		porcentageApiMock.startMockServer();
-		redisServer = new RedisServerBuilder().port(6370).setting("maxmemory 256M").build();
-		redisServer.start();
+	void beforeAll() {
+		super.init(9091);
 	}
 
 	@AfterAll
-	void shutDown() {
-		porcentageApiMock.stop();
-		redisServer.stop();
+	void afterAll() {
+		super.shutDown();
 	}
 
 	@Test
@@ -118,44 +109,6 @@ class PercentageControllerTest {
 		Assertions.assertNotNull(pricingDto);
 		Assertions.assertNotNull(pricingDto.getResult());
 		Assertions.assertEquals("6",pricingDto.getResult());
-
-		calledHistoryRepository.deleteAll();
-	}
-
-
-	@Test
-	@Order(4)
-	void test_Caculate_Should_ReturnTooManyRequests_When_Invoked() throws JsonProcessingException, Exception {
-		mockMvc.perform(
-						MockMvcRequestBuilders.get("/v1/pricing/caculate/1/2")
-								.contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON)
-				)
-				.andDo(MockMvcResultHandlers.print())
-				.andExpectAll(
-						MockMvcResultMatchers.status().isOk()
-
-				);
-		mockMvc.perform(
-						MockMvcRequestBuilders.get("/v1/pricing/caculate/1/2")
-								.contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON)
-				)
-				.andDo(MockMvcResultHandlers.print())
-				.andExpectAll(
-						MockMvcResultMatchers.status().isOk()
-
-				);
-		mockMvc.perform(
-						MockMvcRequestBuilders.get("/v1/pricing/caculate/1/2")
-								.contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON)
-				)
-				.andDo(MockMvcResultHandlers.print())
-				.andExpectAll(
-						MockMvcResultMatchers.status().isTooManyRequests()
-
-				);
 
 		calledHistoryRepository.deleteAll();
 	}

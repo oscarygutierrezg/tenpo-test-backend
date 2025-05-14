@@ -1,9 +1,9 @@
 app:
  ms:
   rate-limit:
-   capacity: 3
+
   percentage:
-   url: http://localhost:9090
+   url: http://localhost:9091
 server:
  servlet:
   context-path: /tenpo
@@ -45,8 +45,9 @@ spring:
   spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
  main:
   allow-bean-definition-overriding: true
- redis:
-  host: localhost
-  port: 6370
  profiles:
   active: test
+ data:
+  redis:
+   host: localhost
+   port: 6370

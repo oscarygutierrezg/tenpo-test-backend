@@ -12,7 +12,6 @@ public class PorcentageApiMock extends WireMockServer {
         super(port);
     }
 
-
     public void startMockServer() {
         start();
         stubFor(

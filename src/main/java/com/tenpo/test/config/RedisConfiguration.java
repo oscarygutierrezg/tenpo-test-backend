@@ -1,23 +1,29 @@
 package com.tenpo.test.config;
 
-import com.tenpo.test.reposiroty.StringRedisRepository;
-import com.tenpo.test.reposiroty.impl.StringRedisRepositoryImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 @Configuration
 public class RedisConfiguration {
 
 
-    @Value("${spring.redis.host}")
+    @Value("${spring.data.redis.host}")
     private String host;
 
-    @Value("${spring.redis.port}")
+    @Value("${spring.data.redis.port}")
     private int port;
 
     @Bean
@@ -30,8 +36,16 @@ public class RedisConfiguration {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
 
+    @Primary
     @Bean
-    StringRedisRepository stringRedisRepository(StringRedisTemplate template) {
-        return new StringRedisRepositoryImpl(template);
+    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(30)) // ⏳ TTL de 30 minutos
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+
+        return RedisCacheManager.builder(redisConnectionFactory)
+                .cacheDefaults(config)
+                .build();
     }
 }

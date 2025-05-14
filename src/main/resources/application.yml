@@ -1,7 +1,7 @@
 app:
  ms:
   rate-limit:
-   capacity: 3
+
   percentage:
    url: http://localhost:8081/tenpo
 server:
@@ -36,9 +36,6 @@ management:
   retries:
    enabled: true
 spring:
- redis:
-  host: localhost
-  port: 6379
  datasource:
   url: jdbc:postgresql://localhost:5432/postgres
   username: root
@@ -46,7 +43,13 @@ spring:
  jpa:
   database-platform: org.hibernate.dialect.PostgreSQLDialect
   hibernate.ddl-auto: update
+ cache:
+  type: redis
  main:
   allow-bean-definition-overriding: true
  profiles:
   active: development
+ data:
+  redis:
+   host: localhost
+   port: 6379
