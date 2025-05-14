@@ -43,7 +43,6 @@ public class PricingServiceServiceImpl implements PricingService {
                     percentageProcessorService.saveHistory(history);
                     throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, Constants.PRECONDITION_FAILED_MSG);
                 });
-
         PricingDto pricing = calculatePrice(percentage, numOne, numTwo);
         var history = createHistory(pricing, parameters ,Status.SUCCESSFUL);
         percentageProcessorService.saveHistory(history);

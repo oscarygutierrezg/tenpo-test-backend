@@ -30,7 +30,7 @@ class PricingServiceServiceImplUnitTest {
 	private PercentageService percentageService;
 	@Mock
 	private AsyncPercentageProcessorService percentageProcessorService;
-	@Spy
+	@Mock
 	private  ObjectMapper objectMapper;
 	@Mock
 	private  HttpServletRequest httpServletRequest;
@@ -42,7 +42,6 @@ class PricingServiceServiceImplUnitTest {
 		percentageDto.setValue(1D);
 		Mockito.when(percentageService.getCurrent()).thenReturn(percentageDto);
 
-
 		var price = pricingServiceService.getPrice(1,2);
 
 		Assertions.assertNotNull(price);
@@ -50,6 +49,7 @@ class PricingServiceServiceImplUnitTest {
 		Assertions.assertEquals("6",price.getResult());
 		Mockito.verify(percentageService, Mockito.times(1)).getCurrent();
 		Mockito.verify(percentageProcessorService, Mockito.times(1)).saveHistory(Mockito.any());
+		Mockito.verify(objectMapper, Mockito.times(1)).writeValueAsString(Mockito.any());
 		Mockito.verify(httpServletRequest, Mockito.times(1)).getRequestURI();
 	}
 
@@ -57,6 +57,23 @@ class PricingServiceServiceImplUnitTest {
 	@Test
 	void test_GetPrice_Should_ReturnResponseStatusException_When_Invoked() {
 		Mockito.when(percentageService.getCurrent()).thenReturn(null);
+
+
+		assertThatThrownBy(() -> pricingServiceService.getPrice(1,2))
+				.isInstanceOf(ResponseStatusException.class)
+				.hasMessage("412 PRECONDITION_FAILED \"No se pudo encontrar el porcenjate\"");
+
+		Mockito.verify(httpServletRequest, Mockito.times(1)).getRequestURI();
+		Mockito.verify(percentageService, Mockito.times(1)).getCurrent();
+		Mockito.verify(percentageProcessorService, Mockito.times(1)).saveHistory(Mockito.any());
+	}
+
+	@SneakyThrows
+    @Test
+	void test_GetPrice_Should_ReturnResponseStatusException_When_Invoked1() {
+		Mockito.when(percentageService.getCurrent()).thenReturn(null);
+		Mockito.when(objectMapper.writeValueAsString(Mockito.any(Object.class))).thenThrow(new JsonProcessingException("Error"){});
+
 
 		assertThatThrownBy(() -> pricingServiceService.getPrice(1,2))
 				.isInstanceOf(ResponseStatusException.class)
