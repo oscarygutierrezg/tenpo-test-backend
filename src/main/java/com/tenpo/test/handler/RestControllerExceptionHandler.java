@@ -44,16 +44,6 @@ public class RestControllerExceptionHandler {
 
 	}
 
-	@ExceptionHandler(ResponseStatusException.class)
-	public ResponseEntity<ApiResponseErrorDto> handleResponseStatusException(ResponseStatusException exception){
-		log.error(exception.getMessage(),exception);
-		return ResponseEntity.status(exception.getStatusCode())
-				.body(
-						createApiResponseErrorDto(Objects.requireNonNull(HttpStatus.resolve(exception.getStatusCode().value())), List.of(exception.getMessage().replace("\"","")))
-				);
-
-	}
-
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ResponseEntity<ApiResponseErrorDto> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception){
@@ -64,8 +54,6 @@ public class RestControllerExceptionHandler {
 				.body(body);
 
 	}
-
-
 
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
