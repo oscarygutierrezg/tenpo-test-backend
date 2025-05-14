@@ -3,7 +3,7 @@ package com.tenpo.test.integration.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenpo.test.TestBackendTenpoApplication;
-import com.tenpo.test.base.BaseControllerTest;
+import com.tenpo.test.base.BaseIntegrationControllerTest;
 import com.tenpo.test.dto.pricing.PricingDto;
 import com.tenpo.test.reposiroty.CalledHistoryRepository;
 import org.junit.jupiter.api.AfterAll;
@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class PercentageControllerTest  extends BaseControllerTest {
+class PercentageControllerTest  extends BaseIntegrationControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired

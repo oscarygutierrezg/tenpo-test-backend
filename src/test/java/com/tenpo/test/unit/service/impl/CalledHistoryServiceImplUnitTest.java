@@ -76,14 +76,20 @@ class CalledHistoryServiceImplUnitTest {
 
 		CalledHistoryDto.CalledHistoryDtoBuilder calledHistoryDto = CalledHistoryDto.builder();
 
-		if ( calledHistory.getUrl() != null ) {
-			calledHistoryDto.url( calledHistory.getUrl() );
+		if ( calledHistory.getEndpoint() != null ) {
+			calledHistoryDto.endpoint( calledHistory.getEndpoint() );
 		}
 		if ( calledHistory.getResponse() != null ) {
 			calledHistoryDto.response( calledHistory.getResponse() );
 		}
 		if ( calledHistory.getStatus() != null ) {
 			calledHistoryDto.status( calledHistory.getStatus() );
+		}
+		if ( calledHistory.getDate() != null ) {
+			calledHistoryDto.date( calledHistory.getDate() );
+		}
+		if ( calledHistory.getParameters() != null ) {
+			calledHistoryDto.parameters( calledHistory.getParameters() );
 		}
 
 		return calledHistoryDto.build();
@@ -96,14 +102,20 @@ class CalledHistoryServiceImplUnitTest {
 
 		CalledHistory.CalledHistoryBuilder calledHistory1 = CalledHistory.builder();
 
-		if ( calledHistory.getUrl() != null ) {
-			calledHistory1.url( calledHistory.getUrl() );
+		if ( calledHistory.getEndpoint() != null ) {
+			calledHistory1.endpoint( calledHistory.getEndpoint() );
 		}
 		if ( calledHistory.getResponse() != null ) {
 			calledHistory1.response( calledHistory.getResponse() );
 		}
 		if ( calledHistory.getStatus() != null ) {
 			calledHistory1.status( calledHistory.getStatus() );
+		}
+		if ( calledHistory.getDate() != null ) {
+			calledHistory1.date( calledHistory.getDate() );
+		}
+		if ( calledHistory.getParameters() != null ) {
+			calledHistory1.parameters( calledHistory.getParameters() );
 		}
 
 		return calledHistory1.build();

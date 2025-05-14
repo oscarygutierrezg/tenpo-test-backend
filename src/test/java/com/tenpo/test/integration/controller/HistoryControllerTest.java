@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import com.tenpo.test.TestBackendTenpoApplication;
-import com.tenpo.test.base.BaseControllerTest;
+import com.tenpo.test.base.BaseIntegrationControllerTest;
 import com.tenpo.test.model.CalledHistory;
 import com.tenpo.test.model.enums.Status;
 import com.tenpo.test.reposiroty.CalledHistoryRepository;
@@ -25,13 +25,15 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestBackendTenpoApplication.class)
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-class HistoryControllerTest extends BaseControllerTest {
+class HistoryControllerTest extends BaseIntegrationControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired
@@ -55,7 +57,8 @@ class HistoryControllerTest extends BaseControllerTest {
 			calledHistoryRepository.save(CalledHistory.builder()
 					.response(objectMapper.writeValueAsString(response))
 					.status(status)
-					.url(faker.company().url())
+					.endpoint(faker.company().url())
+					.date(LocalDateTime.now())
 					.build());
 		} catch (Exception e){
 			log.error(e.getMessage(),e);

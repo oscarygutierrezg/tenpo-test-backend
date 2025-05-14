@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "called_history")
 @Builder
@@ -30,10 +32,14 @@ public class CalledHistory {
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "uuid2")
 	@Column(length = 36, nullable = false, updatable = false)
 	private String id;
-	@Column(name = "url")
-	private String url;
+	@Column(name = "parameters")
+	private String parameters;
+	@Column(name = "endpoint")
+	private String endpoint;
 	@Column(name = "response")
 	private String response;
 	@Enumerated(EnumType.STRING)
 	private Status status;
+	@Column(name = "date")
+	private LocalDateTime date;
 }

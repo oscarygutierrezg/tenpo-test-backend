@@ -7,12 +7,12 @@ import org.testcontainers.utility.DockerImageName;
 /**
  * Base class for controller tests.
  */
-class BaseIntegrationControllerTest {
+public class BaseIntegrationControllerTest {
 
 	private PorcentageApiMock porcentageApiMock;
 	private static GenericContainer<?> redisServer;
 
-	void init(int port) {
+	protected void init(int port) {
 		porcentageApiMock = new PorcentageApiMock(port);
 		porcentageApiMock.startMockServer();
 		redisServer =
@@ -22,7 +22,7 @@ class BaseIntegrationControllerTest {
 		System.setProperty("spring.data.redis.port", redisServer.getMappedPort(6379).toString());
 	}
 
-	void shutDown() {
+	protected void shutDown() {
 		porcentageApiMock.stop();
 		redisServer.stop();
 	}

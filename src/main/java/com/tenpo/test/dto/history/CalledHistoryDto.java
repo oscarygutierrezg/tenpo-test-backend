@@ -5,11 +5,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
 public class CalledHistoryDto{
-	private String url;
+	private String parameters;
+	private String endpoint;
+	private LocalDateTime date;
 	private String response;
 	private Status status;
 }

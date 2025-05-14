@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -83,7 +84,9 @@ public class RestControllerExceptionHandler {
 			calledHistoryService.create(CalledHistoryDto.builder()
 					.response(objectMapper.writeValueAsString(response))
 					.status(status)
-					.url(httpServletRequest.getRequestURI())
+					.parameters(httpServletRequest.getQueryString())
+					.date(LocalDateTime.now())
+					.endpoint(httpServletRequest.getRequestURI())
 					.build());
 		} catch (Exception e){
 			log.error(e.getMessage(),e);
