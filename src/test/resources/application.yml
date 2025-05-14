@@ -1,25 +1,41 @@
 app:
  ms:
-  rate-limit:
-
   percentage:
    url: http://localhost:9091
 server:
  servlet:
   context-path: /tenpo
-resilience4j.retry:
- configs:
-  default:
-   registerHealthIndicator: true
-   maxAttempts: 3
-   waitDuration: 1s
-   enableExponentialBackoff: true
-   exponentialBackoffMultiplier: 2
- instances:
-  percentageClient:
-   baseConfig: default
-   ignoreExceptions:
-    - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+resilience4j:
+ retry:
+  configs:
+   default:
+    maxAttempts: 3
+    waitDuration: 1s
+    enableExponentialBackoff: true
+    exponentialBackoffMultiplier: 2
+  instances:
+   percentageClient:
+    baseConfig: default
+    ignoreExceptions:
+     - io.github.resilience4j.circuitbreaker.CallNotPermittedException
+ circuitbreaker:
+  instances:
+   percentageClient:
+    registerHealthIndicator: true
+    slidingWindowSize: 10
+    minimumNumberOfCalls: 5
+    permittedNumberOfCallsInHalfOpenState: 3
+    waitDurationInOpenState: 10s
+    failureRateThreshold: 50
+    eventConsumerBufferSize: 10
+    automaticTransitionFromOpenToHalfOpenEnabled: true
+  timelimiter:
+   instances:
+    percentageClient:
+     timeoutDuration: 2s
+feign:
+ circuitbreaker:
+  enabled: true
 management:
  endpoint:
   health:
@@ -42,7 +58,11 @@ spring:
   password: password
   driverClassName: org.h2.Driver
  jpa:
-  spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+  database-platform: org.hibernate.dialect.H2Dialect
+ cache:
+  type: redis
+  redis:
+   time-to-live: 1
  main:
   allow-bean-definition-overriding: true
  profiles:

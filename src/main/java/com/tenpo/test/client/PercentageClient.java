@@ -7,20 +7,17 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 
 
-@FeignClient(name = "percentageClient", url = "${app.ms.percentage.url}")
+@FeignClient(name = "percentageClient", url = "${app.ms.percentage.url}", fallback = PercentageClientFallback.class)
 public interface PercentageClient {
 	
 	@GetMapping(
 			value = "/v1/percentage/current",
 			produces = MediaType.APPLICATION_JSON_VALUE
 			)
-	@Retry(name = "percentageClient", fallbackMethod = "getCurrentOrdersFallbackForRetry")
+	@Retry(name = "percentageClient", fallbackMethod = "getCurrentPercentageFallbackForRetry")
 	PercentageDto getCurrent();
 
-	default PercentageDto getCurrentOrdersFallbackForRetry(Exception e) {
+	default PercentageDto getCurrentPercentageFallbackForRetry(Exception e) {
 		return null;
 	}
-	
-	
-
 }

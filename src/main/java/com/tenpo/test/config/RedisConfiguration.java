@@ -26,6 +26,9 @@ public class RedisConfiguration {
     @Value("${spring.data.redis.port}")
     private int port;
 
+    @Value("${spring.cache.redis.time-to-live}")
+    private int ttl;
+
     @Bean
     public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
         return new LettuceConnectionFactory(host, port);
@@ -40,7 +43,8 @@ public class RedisConfiguration {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(30)) // ⏳ TTL de 30 minutos
+                .entryTtl(Duration.ofMinutes(ttl)) // ⏳ TTL de 30 minutos
+                .disableCachingNullValues()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
