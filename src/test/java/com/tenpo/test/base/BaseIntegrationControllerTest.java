@@ -1,6 +1,6 @@
 package com.tenpo.test.base;
 
-import com.tenpo.test.base.config.PorcentageApiMock;
+import com.tenpo.test.config.PorcentageApiMock;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -14,7 +14,6 @@ public class BaseIntegrationControllerTest {
 
 	protected void init(int port) {
 		porcentageApiMock = new PorcentageApiMock(port);
-		porcentageApiMock.startMockServer();
 		redisServer =
 				new GenericContainer<>(DockerImageName.parse("redis:latest")).withExposedPorts(6379);
 		redisServer.start();
@@ -25,6 +24,22 @@ public class BaseIntegrationControllerTest {
 	protected void shutDown() {
 		porcentageApiMock.stop();
 		redisServer.stop();
+	}
+
+	protected void stopMocks() {
+		porcentageApiMock.stop();
+	}
+
+	protected void startMocks() {
+		porcentageApiMock.startMockServer();
+	}
+
+	protected void stopDbs() {
+		redisServer.stop();
+	}
+
+	protected void startDbs() {
+		redisServer.start();
 	}
 }
 

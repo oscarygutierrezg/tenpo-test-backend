@@ -20,15 +20,19 @@ class PercentageServiceImplUnitTest {
 	@Mock
 	private PercentageClient percentageClient;
 
+
 	@SneakyThrows
 	@Test
-	void test_GetCurrent_Should_ReturnPercentage_When_Invoked() {
+	void givenPercentageAvailable_whenGetCurrent_thenReturnsPercentage() {
+		// Arrange
 		var percentage = new PercentageDto();
 		Mockito.when(percentageClient.getCurrent()).thenReturn(percentage);
 
+		// Act
 		var result = percentageService.getCurrent();
 
-		Assertions.assertEquals(percentage,result);
+		// Assert
+		Assertions.assertEquals(percentage, result);
 		Mockito.verify(percentageClient, Mockito.times(1)).getCurrent();
 	}
 

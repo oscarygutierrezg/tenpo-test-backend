@@ -67,6 +67,16 @@ public class RestControllerExceptionHandler {
 
 	}
 
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<ApiResponseErrorDto> handleResponseStatusException(ResponseStatusException exception){
+		return ResponseEntity.status(exception.getStatusCode())
+				.body(
+						createApiResponseErrorDto(Objects.requireNonNull(HttpStatus.resolve(exception.getStatusCode().value())), List.of(exception.getMessage().replace("\"","")))
+				);
+
+	}
+
+
 	private ApiResponseErrorDto createApiResponseErrorDto(HttpStatus httpStatus,List<String> errors) {
 		var response = ApiResponseErrorDto.builder()
 				.code(httpStatus.value())

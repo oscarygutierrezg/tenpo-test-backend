@@ -1,11 +1,11 @@
 package com.tenpo.test.integration.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenpo.test.TestBackendTenpoApplication;
 import com.tenpo.test.base.BaseIntegrationControllerTest;
 import com.tenpo.test.dto.pricing.PricingDto;
 import com.tenpo.test.reposiroty.CalledHistoryRepository;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,21 +27,20 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestBackendTenpoApplication.class)
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class PercentageControllerTest  extends BaseIntegrationControllerTest {
+class PercentageControllerTest extends BaseIntegrationControllerTest {
+
 	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired
 	private CalledHistoryRepository calledHistoryRepository;
 	@Autowired
 	private MockMvc mockMvc;
-
 
 	@BeforeAll
 	void beforeAll() {
@@ -53,65 +52,95 @@ class PercentageControllerTest  extends BaseIntegrationControllerTest {
 		super.shutDown();
 	}
 
+	@SneakyThrows
 	@Test
 	@Order(1)
-	void test_Caculate_Should_ReturnBadRequestNegativeValue_When_Invoked() throws JsonProcessingException, Exception {
-		mockMvc.perform(
-						MockMvcRequestBuilders.get("/v1/pricing/caculate/-1/2")
-								.contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON)
-				)
-				.andDo(MockMvcResultHandlers.print())
-				.andExpectAll(
-						MockMvcResultMatchers.status().isBadRequest()
+	void givenNoPercentage_whenCalculatePrice_thenReturnsPreconditionFailed() {
+		// Arrange
 
-				);
+		// Act
+		ResultActions result = mockMvc.perform(
+				MockMvcRequestBuilders.get("/v1/pricing/caculate/1/2")
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print());
 
+		// Assert
+		result.andExpectAll(
+				MockMvcResultMatchers.status().isPreconditionFailed()
+		);
 		calledHistoryRepository.deleteAll();
 	}
 
+	@SneakyThrows
 	@Test
 	@Order(2)
-	void test_Caculate_Should_ReturnBadRequest_When_Invoked() throws JsonProcessingException, Exception {
-		mockMvc.perform(
-						MockMvcRequestBuilders.get("/v1/pricing/caculate/fsdfsdfdsfds/2")
-								.contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON)
-				)
-				.andDo(MockMvcResultHandlers.print())
-				.andExpectAll(
-						MockMvcResultMatchers.status().isBadRequest()
+	void givenNegativeValue_whenCalculatePrice_thenReturnsBadRequest() {
+		// Arrange
 
-				);
+		// Act
+		ResultActions result = mockMvc.perform(
+				MockMvcRequestBuilders.get("/v1/pricing/caculate/-1/2")
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print());
 
+		// Assert
+		result.andExpectAll(
+				MockMvcResultMatchers.status().isBadRequest()
+		);
 		calledHistoryRepository.deleteAll();
 	}
 
-
-
+	@SneakyThrows
 	@Test
 	@Order(3)
-	void test_Caculate_Should_ShowPrice_When_Invoked() throws JsonProcessingException, Exception {
-		ResultActions res = mockMvc.perform(
-						MockMvcRequestBuilders.get("/v1/pricing/caculate/1/2")
-								.contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON)
-				)
-				.andDo(MockMvcResultHandlers.print())
-				.andExpectAll(
-						MockMvcResultMatchers.status().isOk()
+	void givenNonNumericValue_whenCalculatePrice_thenReturnsBadRequest() {
+		// Arrange
 
-				);
-		Assertions.assertNotNull(res);
-		Assertions.assertNotNull(res.andReturn());
-		Assertions.assertNotNull(res.andReturn().getResponse());
-		Assertions.assertNotNull(res.andReturn().getResponse().getContentAsString());
-		PricingDto pricingDto = objectMapper.readValue(res.andReturn().getResponse().getContentAsString(), PricingDto.class);
+		// Act
+		ResultActions result = mockMvc.perform(
+				MockMvcRequestBuilders.get("/v1/pricing/caculate/fsdfsdfdsfds/2")
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print());
+
+		// Assert
+		result.andExpectAll(
+				MockMvcResultMatchers.status().isBadRequest()
+		);
+		calledHistoryRepository.deleteAll();
+	}
+
+	@SneakyThrows
+	@Test
+	@Order(4)
+	void givenValidPercentage_whenCalculatePrice_thenReturnsCorrectPrice() {
+		// Arrange
+		startMocks();
+
+		// Act
+		ResultActions result = mockMvc.perform(
+				MockMvcRequestBuilders.get("/v1/pricing/caculate/1/2")
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print());
+
+		// Assert
+		result.andExpectAll(
+				MockMvcResultMatchers.status().isOk()
+		);
+		Assertions.assertNotNull(result);
+		Assertions.assertNotNull(result.andReturn());
+		Assertions.assertNotNull(result.andReturn().getResponse());
+		Assertions.assertNotNull(result.andReturn().getResponse().getContentAsString());
+		PricingDto pricingDto = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), PricingDto.class);
 		Assertions.assertNotNull(pricingDto);
 		Assertions.assertNotNull(pricingDto.getResult());
-		Assertions.assertEquals("6",pricingDto.getResult());
+		Assertions.assertEquals("6", pricingDto.getResult());
 
 		calledHistoryRepository.deleteAll();
+		stopMocks();
 	}
 
 }

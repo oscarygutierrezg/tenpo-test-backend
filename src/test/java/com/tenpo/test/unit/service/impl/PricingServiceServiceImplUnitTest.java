@@ -14,12 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 class PricingServiceServiceImplUnitTest {
@@ -31,22 +29,25 @@ class PricingServiceServiceImplUnitTest {
 	@Mock
 	private AsyncPercentageProcessorService percentageProcessorService;
 	@Mock
-	private  ObjectMapper objectMapper;
+	private ObjectMapper objectMapper;
 	@Mock
-	private  HttpServletRequest httpServletRequest;
+	private HttpServletRequest httpServletRequest;
 
 	@SneakyThrows
 	@Test
-	void test_GetPrice_Should_ReturnPrice_When_Invoked() {
+	void givenValidInput_whenGetPrice_thenReturnsCalculatedPrice() {
+		// Arrange
 		var percentageDto = new PercentageDto();
 		percentageDto.setValue(1D);
 		Mockito.when(percentageService.getCurrent()).thenReturn(percentageDto);
 
-		var price = pricingServiceService.getPrice(1,2);
+		// Act
+		var price = pricingServiceService.getPrice(1, 2);
 
+		// Assert
 		Assertions.assertNotNull(price);
 		Assertions.assertNotNull(price.getResult());
-		Assertions.assertEquals("6",price.getResult());
+		Assertions.assertEquals("6", price.getResult());
 		Mockito.verify(percentageService, Mockito.times(1)).getCurrent();
 		Mockito.verify(percentageProcessorService, Mockito.times(1)).saveHistory(Mockito.any());
 		Mockito.verify(objectMapper, Mockito.times(1)).writeValueAsString(Mockito.any());
@@ -55,11 +56,12 @@ class PricingServiceServiceImplUnitTest {
 
 	@SneakyThrows
 	@Test
-	void test_GetPrice_Should_ReturnResponseStatusException_When_Invoked() {
+	void givenNoPercentageAvailable_whenGetPrice_thenThrowsPreconditionFailed() {
+		// Arrange
 		Mockito.when(percentageService.getCurrent()).thenReturn(null);
 
-
-		assertThatThrownBy(() -> pricingServiceService.getPrice(1,2))
+		// Act & Assert
+		assertThatThrownBy(() -> pricingServiceService.getPrice(1, 2))
 				.isInstanceOf(ResponseStatusException.class)
 				.hasMessage("412 PRECONDITION_FAILED \"No se pudo encontrar el porcenjate\"");
 
@@ -69,13 +71,15 @@ class PricingServiceServiceImplUnitTest {
 	}
 
 	@SneakyThrows
-    @Test
-	void test_GetPrice_Should_ReturnResponseStatusException_When_Invoked1() {
+	@Test
+	void givenJsonProcessingException_whenGetPrice_thenThrowsPreconditionFailed() {
+		// Arrange
 		Mockito.when(percentageService.getCurrent()).thenReturn(null);
-		Mockito.when(objectMapper.writeValueAsString(Mockito.any(Object.class))).thenThrow(new JsonProcessingException("Error"){});
+		Mockito.when(objectMapper.writeValueAsString(Mockito.any(Object.class)))
+				.thenThrow(new JsonProcessingException("Error") {});
 
-
-		assertThatThrownBy(() -> pricingServiceService.getPrice(1,2))
+		// Act & Assert
+		assertThatThrownBy(() -> pricingServiceService.getPrice(1, 2))
 				.isInstanceOf(ResponseStatusException.class)
 				.hasMessage("412 PRECONDITION_FAILED \"No se pudo encontrar el porcenjate\"");
 

@@ -8,9 +8,12 @@ import com.tenpo.test.base.BaseIntegrationControllerTest;
 import com.tenpo.test.model.CalledHistory;
 import com.tenpo.test.model.enums.Status;
 import com.tenpo.test.reposiroty.CalledHistoryRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,10 +24,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -40,7 +43,7 @@ class HistoryControllerTest extends BaseIntegrationControllerTest {
 	private CalledHistoryRepository calledHistoryRepository;
 	@Autowired
 	private MockMvc mockMvc;
-	public Faker faker = new Faker();
+	private final Faker faker = new Faker();
 
 	@BeforeAll
 	void beforeAll() {
@@ -52,69 +55,93 @@ class HistoryControllerTest extends BaseIntegrationControllerTest {
 		super.shutDown();
 	}
 
-	public void saveHistory(Object response, Status status) {
-		try{
+	@BeforeEach
+	void cleanBefore() {
+		calledHistoryRepository.deleteAll();
+	}
+
+	@AfterEach
+	void cleanAfter() {
+		calledHistoryRepository.deleteAll();
+	}
+
+	private void saveHistory(Object response, Status status) {
+		try {
 			calledHistoryRepository.save(CalledHistory.builder()
 					.response(objectMapper.writeValueAsString(response))
 					.status(status)
 					.endpoint(faker.company().url())
 					.date(LocalDateTime.now())
 					.build());
-		} catch (Exception e){
-			log.error(e.getMessage(),e);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 		}
 	}
 
-
+	@SneakyThrows
 	@Test
-	void test_Caculate_Should_ReturnPage_When_Invoked() throws JsonProcessingException, Exception {
+	void givenHistoryRecords_whenGetAll_thenReturnsAllPagedResults() {
+		// Arrange
 		saveHistory("ERROR", Status.FAILED);
 		saveHistory("OK", Status.SUCCESSFUL);
-		mockMvc.perform(
-						MockMvcRequestBuilders.get("/v1/history/index")
-								.contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON)
-				)
-				.andDo(MockMvcResultHandlers.print())
-				.andExpectAll(
-						MockMvcResultMatchers.status().isOk()
 
-				).andExpectAll(
-						MockMvcResultMatchers.status().isOk(),
-						MockMvcResultMatchers.jsonPath("$.totalElements").value(2),
-						MockMvcResultMatchers.jsonPath("$.totalPages").value(1)
-				);
+		// Act
+		ResultActions result = mockMvc.perform(
+				MockMvcRequestBuilders.get("/v1/history/index")
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print());
 
-		mockMvc.perform(
-						MockMvcRequestBuilders.get("/v1/history/index?status=SUCCESSFUL")
-								.contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON)
-				)
-				.andDo(MockMvcResultHandlers.print())
-				.andExpectAll(
-						MockMvcResultMatchers.status().isOk()
+		// Assert
+		result.andExpectAll(
+				MockMvcResultMatchers.status().isOk(),
+				MockMvcResultMatchers.jsonPath("$.totalElements").value(2),
+				MockMvcResultMatchers.jsonPath("$.totalPages").value(1)
+		);
+	}
 
-				).andExpectAll(
-						MockMvcResultMatchers.status().isOk(),
-						MockMvcResultMatchers.jsonPath("$.totalElements").value(1),
-						MockMvcResultMatchers.jsonPath("$.totalPages").value(1)
-				);
+	@SneakyThrows
+	@Test
+	void givenHistoryRecords_whenGetSuccessful_thenReturnsOnlySuccessful() {
+		// Arrange
+		saveHistory("ERROR", Status.FAILED);
+		saveHistory("OK", Status.SUCCESSFUL);
 
-		mockMvc.perform(
-						MockMvcRequestBuilders.get("/v1/history/index?status=FAILED")
-								.contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON)
-				)
-				.andDo(MockMvcResultHandlers.print())
-				.andExpectAll(
-						MockMvcResultMatchers.status().isOk()
+		// Act
+		ResultActions result = mockMvc.perform(
+				MockMvcRequestBuilders.get("/v1/history/index?status=SUCCESSFUL")
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print());
 
-				).andExpectAll(
-						MockMvcResultMatchers.status().isOk(),
-						MockMvcResultMatchers.jsonPath("$.totalElements").value(1),
-						MockMvcResultMatchers.jsonPath("$.totalPages").value(1)
-				);
-		calledHistoryRepository.deleteAll();
+		// Assert
+		result.andExpectAll(
+				MockMvcResultMatchers.status().isOk(),
+				MockMvcResultMatchers.jsonPath("$.totalElements").value(1),
+				MockMvcResultMatchers.jsonPath("$.totalPages").value(1)
+		);
+	}
+
+	@SneakyThrows
+	@Test
+	void givenHistoryRecords_whenGetFailed_thenReturnsOnlyFailed() {
+		// Arrange
+		saveHistory("ERROR", Status.FAILED);
+		saveHistory("OK", Status.SUCCESSFUL);
+
+		// Act
+		ResultActions result = mockMvc.perform(
+				MockMvcRequestBuilders.get("/v1/history/index?status=FAILED")
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print());
+
+		// Assert
+		result.andExpectAll(
+				MockMvcResultMatchers.status().isOk(),
+				MockMvcResultMatchers.jsonPath("$.totalElements").value(1),
+				MockMvcResultMatchers.jsonPath("$.totalPages").value(1)
+		);
 	}
 }
 

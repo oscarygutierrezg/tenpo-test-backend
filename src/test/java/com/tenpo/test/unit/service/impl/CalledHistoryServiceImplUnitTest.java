@@ -32,22 +32,25 @@ class CalledHistoryServiceImplUnitTest {
 	@Spy
 	private CalledHistoryMapper calledHistoryMapper;
 
-	
-
 	@Test
-	void test_Create_Should_CreateCalledHistory_When_Invoked() {
+	void givenValid_whenCreate_thenSavesCalledHistory() {
+		// Arrange
+		var dto = CalledHistoryDto.builder().build();
 		Mockito.when(calledHistoryMapper.toModel(Mockito.any(CalledHistoryDto.class))).thenAnswer(p -> toModel((CalledHistoryDto) p.getArguments()[0]));
 		Mockito.when(calledHistoryRepository.save(Mockito.any(CalledHistory.class))).thenReturn(new CalledHistory());
 
-		calledHistoryService.create(CalledHistoryDto.builder().build());
+		// Act
+		calledHistoryService.create(dto);
 
+		// Assert
 		Mockito.verify(calledHistoryMapper, Mockito.times(1)).toModel(Mockito.any());
 		Mockito.verify(calledHistoryRepository, Mockito.times(1)).save(Mockito.any());
 	}
 
 	@Test
-	void test_Index_Should_ReturnPageCalledHistoryDto_When_Invoked() {
-		Page<CalledHistory> page = new PageImpl<>(List.of(new CalledHistory(),new CalledHistory(),new CalledHistory()));
+	void givenRepositoryWithData_whenIndex_thenReturnsPageOfDtos() {
+		// Arrange
+		Page<CalledHistory> page = new PageImpl<>(List.of(new CalledHistory(), new CalledHistory(), new CalledHistory()));
 		Mockito.when(calledHistoryRepository.findAll(Mockito.any(Example.class), Mockito.any(Pageable.class))).thenReturn(page);
 		Mockito.when(calledHistoryMapper.toDto(Mockito.any(CalledHistory.class))).thenAnswer(p -> toDto((CalledHistory) p.getArguments()[0]));
 
@@ -57,67 +60,42 @@ class CalledHistoryServiceImplUnitTest {
 				CalledHistory.builder().status(null).build(),
 				exampleMatcher);
 		Pageable pageable = PageRequest.of(0, 3);
-		var result = calledHistoryService.index(example,pageable);
 
+		// Act
+		var result = calledHistoryService.index(example, pageable);
+
+		// Assert
 		Assertions.assertNotNull(result);
 		Assertions.assertNotNull(result.getContent());
-		Assertions.assertEquals(3,result.getContent().size());
-
+		Assertions.assertEquals(3, result.getContent().size());
 		Mockito.verify(calledHistoryMapper, Mockito.times(3)).toDto(Mockito.any());
-		Mockito.verify(calledHistoryRepository, Mockito.times(1)).findAll(Mockito.any(Example.class),Mockito.any(Pageable.class));
+		Mockito.verify(calledHistoryRepository, Mockito.times(1)).findAll(Mockito.any(Example.class), Mockito.any(Pageable.class));
 	}
 
-
-
+	// Métodos utilitarios privados
 	private CalledHistoryDto toDto(CalledHistory calledHistory) {
-		if ( calledHistory == null ) {
+		if (calledHistory == null) {
 			return null;
 		}
-
-		CalledHistoryDto.CalledHistoryDtoBuilder calledHistoryDto = CalledHistoryDto.builder();
-
-		if ( calledHistory.getEndpoint() != null ) {
-			calledHistoryDto.endpoint( calledHistory.getEndpoint() );
-		}
-		if ( calledHistory.getResponse() != null ) {
-			calledHistoryDto.response( calledHistory.getResponse() );
-		}
-		if ( calledHistory.getStatus() != null ) {
-			calledHistoryDto.status( calledHistory.getStatus() );
-		}
-		if ( calledHistory.getDate() != null ) {
-			calledHistoryDto.date( calledHistory.getDate() );
-		}
-		if ( calledHistory.getParameters() != null ) {
-			calledHistoryDto.parameters( calledHistory.getParameters() );
-		}
-
-		return calledHistoryDto.build();
+		return CalledHistoryDto.builder()
+				.endpoint(calledHistory.getEndpoint())
+				.response(calledHistory.getResponse())
+				.status(calledHistory.getStatus())
+				.date(calledHistory.getDate())
+				.parameters(calledHistory.getParameters())
+				.build();
 	}
 
 	private CalledHistory toModel(CalledHistoryDto calledHistory) {
-		if ( calledHistory == null ) {
+		if (calledHistory == null) {
 			return null;
 		}
-
-		CalledHistory.CalledHistoryBuilder calledHistory1 = CalledHistory.builder();
-
-		if ( calledHistory.getEndpoint() != null ) {
-			calledHistory1.endpoint( calledHistory.getEndpoint() );
-		}
-		if ( calledHistory.getResponse() != null ) {
-			calledHistory1.response( calledHistory.getResponse() );
-		}
-		if ( calledHistory.getStatus() != null ) {
-			calledHistory1.status( calledHistory.getStatus() );
-		}
-		if ( calledHistory.getDate() != null ) {
-			calledHistory1.date( calledHistory.getDate() );
-		}
-		if ( calledHistory.getParameters() != null ) {
-			calledHistory1.parameters( calledHistory.getParameters() );
-		}
-
-		return calledHistory1.build();
+		return CalledHistory.builder()
+				.endpoint(calledHistory.getEndpoint())
+				.response(calledHistory.getResponse())
+				.status(calledHistory.getStatus())
+				.date(calledHistory.getDate())
+				.parameters(calledHistory.getParameters())
+				.build();
 	}
 }

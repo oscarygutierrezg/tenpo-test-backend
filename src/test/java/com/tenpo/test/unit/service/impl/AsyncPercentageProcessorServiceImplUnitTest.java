@@ -20,20 +20,22 @@ class AsyncPercentageProcessorServiceImplUnitTest {
 	@Mock
 	private  CalledHistoryService calledHistoryService;
 
-@Test
-	void test_GetPrice_Should_ReturnPrice_When_Invoked() {
+	@Test
+	void givenValidHistory_whenSaveHistory_thenCallsCreateOnce() {
+		// Arrange
 		long numOne = 1;
 		long numTwo = 2;
 		String parameters = String.format("numOne=%d&numTwo=%d", numOne, numTwo);
-		var percentageDto = CalledHistoryDto.builder()
+		var historyDto = CalledHistoryDto.builder()
 				.parameters(parameters)
 				.response("response")
 				.status(SUCCESSFUL)
 				.build();
 
-		asyncPercentageProcessorService.saveHistory(percentageDto);
+		// Act
+		asyncPercentageProcessorService.saveHistory(historyDto);
 
-		Mockito.verify(calledHistoryService, Mockito.times(1)).create(Mockito.any());
+		// Assert
+		Mockito.verify(calledHistoryService, Mockito.times(1)).create(historyDto);
 	}
-
 }

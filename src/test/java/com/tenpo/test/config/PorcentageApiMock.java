@@ -1,4 +1,4 @@
-package com.tenpo.test.base.config;
+package com.tenpo.test.config;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -22,6 +22,5 @@ public class PorcentageApiMock extends WireMockServer {
                                         .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                         .withBodyFile("mock/percentage_current.json"))
         );
-
     }
 }
