@@ -36,4 +36,19 @@ class PercentageServiceImplUnitTest {
 		Mockito.verify(percentageClient, Mockito.times(1)).getCurrent();
 	}
 
+	@SneakyThrows
+	@Test
+	void givenPercentageAvailable_whenGetCurrentCacheable_thenReturnsPercentage() {
+		// Arrange
+		var percentage = new PercentageDto();
+		Mockito.when(percentageClient.getCurrent()).thenReturn(percentage);
+
+		// Act
+		var result = percentageService.getCurrentCacheable();
+
+		// Assert
+		Assertions.assertEquals(percentage, result);
+		Mockito.verify(percentageClient, Mockito.times(1)).getCurrent();
+	}
+
 }
