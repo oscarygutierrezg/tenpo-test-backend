@@ -15,6 +15,11 @@ public class PercentageServiceImpl implements PercentageService {
 
     @Override
     @Cacheable(value = "percentages", key = "#root.method.name", unless = "#result == null")
+    public PercentageDto getCurrentCacheable() {
+        return  percentageClient.getCurrent();
+    }
+
+    @Override
     public PercentageDto getCurrent() {
         return  percentageClient.getCurrent();
     }

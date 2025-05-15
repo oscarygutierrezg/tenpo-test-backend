@@ -26,6 +26,7 @@ import java.util.Optional;
 @Slf4j
 public class PricingServiceServiceImpl implements PricingService {
 
+
     private static final String DECIMAL_FORMAT = "#.##";
 
     private final AsyncPercentageProcessorService percentageProcessorService;
@@ -33,29 +34,42 @@ public class PricingServiceServiceImpl implements PricingService {
     private final ObjectMapper objectMapper;
     private final HttpServletRequest httpServletRequest;
 
-
     @Override
     public PricingDto getPrice(long numOne, long numTwo) {
-        String parameters = String.format("numOne=%d&numTwo=%d", numOne, numTwo);
-        PercentageDto percentage = Optional.ofNullable(percentageService.getCurrent())
-                .orElseGet(() -> {
-                    var history = createHistory(Constants.PRECONDITION_FAILED_MSG, parameters, Status.FAILED);
-                    percentageProcessorService.saveHistory(history);
-                    throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, Constants.PRECONDITION_FAILED_MSG);
-                });
-        PricingDto pricing = calculatePrice(percentage, numOne, numTwo);
-        var history = createHistory(pricing, parameters ,Status.SUCCESSFUL);
-        percentageProcessorService.saveHistory(history);
+        String parameters = buildParameters(numOne, numTwo);
+        PercentageDto percentage = getValidPercentage(parameters);
+        PricingDto pricing = calculatePricing(percentage, numOne, numTwo);
+        saveHistoryAsync(pricing, parameters, Status.SUCCESSFUL);
         return pricing;
     }
 
-    private CalledHistoryDto createHistory(Object response, String parameters, Status status) {
-        String responseJson = null;
+    private String buildParameters(long numOne, long numTwo) {
+        return String.format("numOne=%d&numTwo=%d", numOne, numTwo);
+    }
+
+    private PercentageDto getValidPercentage(String parameters) {
         try {
-            responseJson = objectMapper.writeValueAsString(response);
-        } catch (JsonProcessingException e) {
-            log.error("Error serializando la respuesta para el historial: {}", e.getMessage(), e);
+            return Optional.ofNullable(percentageService.getCurrentCacheable())
+                    .orElseThrow(() -> handlePercentageNotFound(parameters));
+        } catch (Exception e) {
+            log.error("Error conectando con redis: {}", e.getMessage(), e);
+            return Optional.ofNullable(percentageService.getCurrent())
+                    .orElseThrow(() -> handlePercentageNotFound(parameters));
         }
+    }
+
+    private ResponseStatusException handlePercentageNotFound(String parameters) {
+        saveHistoryAsync(Constants.PRECONDITION_FAILED_MSG, parameters, Status.FAILED);
+        return new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, Constants.PRECONDITION_FAILED_MSG);
+    }
+
+    private void saveHistoryAsync(Object response, String parameters, Status status) {
+        CalledHistoryDto history = buildHistory(response, parameters, status);
+        percentageProcessorService.saveHistory(history);
+    }
+
+    private CalledHistoryDto buildHistory(Object response, String parameters, Status status) {
+        String responseJson = serializeResponse(response);
         return CalledHistoryDto.builder()
                 .response(responseJson)
                 .status(status)
@@ -63,13 +77,21 @@ public class PricingServiceServiceImpl implements PricingService {
                 .date(LocalDateTime.now())
                 .endpoint(httpServletRequest.getRequestURI())
                 .build();
-
     }
 
-    private PricingDto calculatePrice(PercentageDto percentage, long numOne, long numTwo) {
-        double sum = (numOne + numTwo);
+    private String serializeResponse(Object response) {
+        try {
+            return objectMapper.writeValueAsString(response);
+        } catch (JsonProcessingException e) {
+            log.error("Error serializando la respuesta para el historial: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private PricingDto calculatePricing(PercentageDto percentage, long numOne, long numTwo) {
+        double sum = numOne + numTwo;
         double result = sum + (sum * percentage.getValue());
-        DecimalFormat df = new DecimalFormat(DECIMAL_FORMAT);
-        return PricingDto.builder().result(df.format(result)).build();
+        String formattedResult = new DecimalFormat(DECIMAL_FORMAT).format(result);
+        return PricingDto.builder().result(formattedResult).build();
     }
 }
